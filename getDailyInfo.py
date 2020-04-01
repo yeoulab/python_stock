@@ -7,17 +7,28 @@ from bs4 import BeautifulSoup
 import pymysql
 from sqlalchemy import create_engine
 
-db_data = 'mysql+pymysql://' + 'root' + ':' + 'root' + '@' + 'localhost' + ':3306/' \
+import time, datetime
+
+
+start_jongmok_code = input()
+end_jongmok_code = input()
+
+db_data = 'mysql+pymysql://' + 'root' + ':' + 'Rkakrnl1!' + '@' + 'localhost' + ':3306/' \
        + 'stock' + '?charset=UTF8MB4'
 engine = create_engine(db_data, encoding='utf8')
 
 db = pymysql.connect(host='localhost'
                      , port=3306
                      , user='root'
-                     , passwd='root'
+                     , passwd='Rkakrnl1!'
                      , db='stock'
                      , charset='utf8mb4')
-sql = """insert into customer(jongmok_code,tr_date,end_amt,low_amt,hi_amt,tr_amt) values (%s,%s,%d,%d,%d,%d)"""
+sql = """insert into tb_l_jongmok_info(jongmok_code,tr_date,end_amt,low_amt,hi_amt,tr_amt) values (%s,%s,%s,%s,%s,%s)"""
+sel_sql = "select * from tb_m_jongmok where jongmok_code between %s and %s"
+del_sql = "delete from tb_l_jongmok_info where jongmok_code=%s"
+
+print("start_jongmok_code : " + start_jongmok_code)
+print("end_jongmok_code : " + end_jongmok_code)
 
 try:
     with db.cursor() as cursor:
@@ -26,6 +37,9 @@ try:
 
         for row in rows:
             #print(row[1]) 종목코드
+            print("start time : {}".format(str(int(datetime.datetime.now().timestamp()))))
+            cursor.execute(del_sql, row[1])
+
             url = 'http://finance.naver.com/item/sise_day.nhn?code=' + row[1]
             html = urlopen(url)
             source = BeautifulSoup(html.read(), "html.parser")
@@ -36,9 +50,11 @@ try:
             #mpNum = int(mp[0].a.get('href')[-3:])
             mpNum = 1
 
+            print("stock code : {}".format(row[1]))
+
             for page in range(1, mpNum + 1):
-                print(str(page))
-                print(row[1])
+                #print(str(page))
+                #print(row[1])
                 url = 'http://finance.naver.com/item/sise_day.nhn?code=' + row[1] + '&page=' + str(page)
                 html = urlopen(url)
                 source = BeautifulSoup(html.read(), "html.parser")
@@ -59,16 +75,17 @@ try:
                         low_amt = int(srlists[i].find_all("td", class_="num")[3].text.replace(",", ""))
                         hi_amt = int(srlists[i].find_all("td", class_="num")[4].text.replace(",", ""))
                         tr_amt = int(srlists[i].find_all("td", class_="num")[5].text.replace(",", ""))
-                        print(row[1])
-                        print(tr_date)
-                        print(type(end_amt))
-                        print(low_amt)
-                        print(hi_amt)
-                        print(tr_amt)
+                        #print(row[1])
+                        #print(tr_date)
+                        #print(type(end_amt))
+                        #print(low_amt)
+                        #print(hi_amt)
+                        #print(tr_amt)
                         cursor.execute(sql, (row[1], tr_date, end_amt, low_amt, hi_amt, tr_amt))
 
 
                 db.commit()
+            print("end time : {}".format(str(int(datetime.datetime.now().timestamp()))))
 
 finally:
     db.close()
