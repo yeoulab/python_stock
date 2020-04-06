@@ -18,7 +18,10 @@ def getUnitPrice():
     print(request.args)
     item_code = request.args.get("item_code")
     start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
     print("start_date : {}".format(start_date))
+    print("end_date : {}".format(end_date))
     dic_res = getSise.getSise(item_code, start_date)
     response = jsonify(dic_res)
     response.headers.add("Access-Control-Allow-Credentials", "true")

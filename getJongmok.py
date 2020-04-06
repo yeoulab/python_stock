@@ -1,3 +1,7 @@
+##########################################
+# 프로그램 설명 : krx 로부터 download 받아 #
+#                Table 에 종목정보 insert #
+##########################################
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
