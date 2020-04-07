@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 
-def getSise(item_code, start_date):
+def getSise(item_code, start_date, end_date):
     # 정보를 가져오기 위한 url
     url = 'https://m.stock.naver.com/api/item/getTrendList.nhn'
 
@@ -26,6 +26,13 @@ def getSise(item_code, start_date):
     # 입력받은 일자 ~ 현재일자까지의 영업일 리스트
     start_date = pd.to_datetime(start_date)
     tday = pd.to_datetime(datetime.today().strftime("%Y%m%d"))
+
+    # end_date 가 입력되지 않았으면 오늘날짜로
+    if end_date == "":
+        end_date = tday
+    else:
+        end_date = pd.to_datetime(end_date)
+
     print("start_date : {}".format(start_date))
     mdays = pd.date_range(start_date, tday, freq='B')
 
@@ -67,28 +74,33 @@ def getSise(item_code, start_date):
     #print("sum_acc_quant : {}".format(sum_acc_quant))
 
     for row in res['result']:
-      ratio = row['acc_quant'] / sum_acc_quant
+        biz_date = row['bizdate']
+        biz_date = pd.to_datetime(biz_date)
+        if end_date < biz_date:
+            continue
 
-      sum_real_frgn_pure_buy_quant += row['frgn_pure_buy_quant']
-      sum_real_organ_pure_buy_quant += row['organ_pure_buy_quant']
-      sum_real_indi_pure_buy_quant += row['indi_pure_buy_quant']
+        ratio = row['acc_quant'] / sum_acc_quant
 
-      sum_frgn_pure_buy_quant += row['frgn_pure_buy_quant'] * ratio
-      sum_organ_pure_buy_quant += row['organ_pure_buy_quant'] * ratio
-      sum_indi_pure_buy_quant += row['indi_pure_buy_quant'] * ratio
-      #print("organ_pure_buy_quant :{}".format(row['organ_pure_buy_quant'] * ratio))
+        sum_real_frgn_pure_buy_quant += row['frgn_pure_buy_quant']
+        sum_real_organ_pure_buy_quant += row['organ_pure_buy_quant']
+        sum_real_indi_pure_buy_quant += row['indi_pure_buy_quant']
 
-      frgn_unit_price = row['frgn_pure_buy_quant'] * row['close_val'] * ratio
-      organ_unit_price = row['organ_pure_buy_quant'] * row['close_val'] * ratio
-      indi_unit_price = row['indi_pure_buy_quant'] * row['close_val'] * ratio
-      #print("organ_pure_buy_quant : {}".format(row['organ_pure_buy_quant']))
-      #print("ratio : {}".format(ratio))
-      #print("organ_utni_price : {}".format(row['organ_pure_buy_quant'] * row['close_val'] * ratio))
-      sum_frgn_unit_price += frgn_unit_price
-      sum_organ_unit_price += organ_unit_price
-      sum_indi_unit_price += indi_unit_price
+        sum_frgn_pure_buy_quant += row['frgn_pure_buy_quant'] * ratio
+        sum_organ_pure_buy_quant += row['organ_pure_buy_quant'] * ratio
+        sum_indi_pure_buy_quant += row['indi_pure_buy_quant'] * ratio
+        #print("organ_pure_buy_quant :{}".format(row['organ_pure_buy_quant'] * ratio))
 
-      sum_total_unit_price += row['acc_quant'] * row['close_val']
+        frgn_unit_price = row['frgn_pure_buy_quant'] * row['close_val'] * ratio
+        organ_unit_price = row['organ_pure_buy_quant'] * row['close_val'] * ratio
+        indi_unit_price = row['indi_pure_buy_quant'] * row['close_val'] * ratio
+        #print("organ_pure_buy_quant : {}".format(row['organ_pure_buy_quant']))
+        #print("ratio : {}".format(ratio))
+        #print("organ_utni_price : {}".format(row['organ_pure_buy_quant'] * row['close_val'] * ratio))
+        sum_frgn_unit_price += frgn_unit_price
+        sum_organ_unit_price += organ_unit_price
+        sum_indi_unit_price += indi_unit_price
+
+        sum_total_unit_price += row['acc_quant'] * row['close_val']
 
 
     print("외국인 보유 주수 : {}".format(sum_real_frgn_pure_buy_quant))

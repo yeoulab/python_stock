@@ -1,3 +1,6 @@
+##########################################
+# 프로그램 설명 : krx 공시정보 api 호출    #
+##########################################
 import requests
 import pandas as pd
 from datetime import datetime
