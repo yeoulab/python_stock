@@ -101,13 +101,13 @@ def getSise(item_code, start_date):
 
     return_value = {}
     result = []
-    result.append({'subject': '외국인', 'value': sum_real_frgn_pure_buy_quant, 'pre_value': 0})
-    result.append({'subject': '기관', 'value': sum_real_organ_pure_buy_quant, 'pre_value': 0})
-    result.append({'subject': '개인', 'value': sum_real_indi_pure_buy_quant, 'pre_value': 0})
-    result.append({'subject': '가중치 외국인 평단', 'value': int(sum_frgn_unit_price/sum_frgn_pure_buy_quant), 'pre_value': 0})
-    result.append({'subject': '가중치 기관 평단', 'value': int(sum_organ_unit_price/sum_organ_pure_buy_quant), 'pre_value': 0})
-    result.append({'subject': '가중치 개인 평단', 'value': int(sum_indi_unit_price/sum_indi_pure_buy_quant), 'pre_value': 0})
-    result.append({'subject': '가중치 거래량 평단', 'value': int(sum_total_unit_price/sum_acc_quant), 'pre_value': 0})
+    result.append({'subject': '외국인', 'value': format(sum_real_frgn_pure_buy_quant,","), 'pre_value': 0})
+    result.append({'subject': '기관', 'value': format(sum_real_organ_pure_buy_quant,","), 'pre_value': 0})
+    result.append({'subject': '개인', 'value': format(sum_real_indi_pure_buy_quant,","), 'pre_value': 0})
+    result.append({'subject': '가중치 외국인 평단', 'value': format(int(sum_frgn_unit_price/sum_frgn_pure_buy_quant),","), 'pre_value': 0})
+    result.append({'subject': '가중치 기관 평단', 'value': format(int(sum_organ_unit_price/sum_organ_pure_buy_quant),","), 'pre_value': 0})
+    result.append({'subject': '가중치 개인 평단', 'value': format(int(sum_indi_unit_price/sum_indi_pure_buy_quant),","), 'pre_value': 0})
+    result.append({'subject': '가중치 거래량 평단', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
     #print(result)
     return_value.setdefault('result', result)
 

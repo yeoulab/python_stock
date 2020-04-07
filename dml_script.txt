@@ -1,0 +1,33 @@
+CREATE DATABASE stock DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+create table `tb_m_jongmok` (
+ `company_name` char(50) not null,
+ `jongmok_code` char(6) not null,
+ `business_kind` char(100),
+ `main_product` varchar(300),
+ `register_date` char(10),
+ `fin_month` char(4),
+ `ceo_name` char(60),
+ `homepage` char(100),
+ `company_region` char(30),
+ primary key(jongmok_code)
+ ) default CHARSET utf8 collate utf8_unicode_ci;
+ create table `tb_l_jongmok_info` (
+  `jongmok_code` char(6) not null,
+  `tr_date` date not null,
+  `end_amt` int,
+  `low_amt` int,
+  `hi_amt` int,
+  `tr_amt` int,
+  primary key(jongmok_code, tr_date)
+  )  default CHARSET utf8 collate utf8_unicode_ci;
+  create table `tb_l_jongmok_trend` (
+  `jongmok_code` char(6) not null,
+  `tr_date` date not null,
+  `end_amt` int,
+  `tot_deal_cnt` int,
+  `ins_deal_cnt` int,
+  `for_deal_cnt` int,
+  `for_hold_cnt` int,
+  `for_hold_per` double,
+  primary key(jongmok_code)
+  )  default CHARSET utf8 collate utf8_unicode_ci;

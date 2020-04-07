@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from flask import jsonify
 from flask_cors import CORS
 import getSise
+import getJongmokInfo
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -27,6 +28,24 @@ def getUnitPrice():
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response
 
+@app.route("/codeInfo")
+def getCodeInfo():
+    print(request.args)
+    item_code = request.args.get("item_code")
+    dic_res = getJongmokInfo.getCodeInfo(item_code)
+    response = jsonify(dic_res)
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    return response
+
+@app.route("/code")
+def getCodeName():
+    item_name = request.args.get("item_name")
+    dic_res = getJongmokInfo.getCodeName(item_name)
+    response = jsonify(dic_res)
+
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    return response
+
 @app.route("/news/naver")
 def getNewsFromNaver():
     res = requests.get('https://news.naver.com/', verify='C:/SDS.crt')
@@ -38,4 +57,4 @@ def getNewsFromNaver():
         print(link_title[num].get_text().strip())
 
 if __name__ =="__main__":
-    app.run()
+    app.run(host='0.0.0.0', port=8090)
