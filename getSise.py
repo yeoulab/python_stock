@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 def getSise(item_code, start_date, end_date):
     # 정보를 가져오기 위한 url
@@ -45,13 +46,8 @@ def getSise(item_code, start_date, end_date):
     # get method 에서 가져올 param
     # 종목코드 / size 는 입력 받아 계산한다.
     params = {'code': item_code, 'size': len(mdays)}
-    #print("params: {}".format(params))
     response = requests.get(url, params=params)
     res = response.json()
-    #print(response.json())
-    #print(len(response['result']))
-    #print(response['result'][0]['change_val'])
-
 
     sum_real_frgn_pure_buy_quant = 0
     sum_real_organ_pure_buy_quant = 0
@@ -66,18 +62,29 @@ def getSise(item_code, start_date, end_date):
     sum_indi_unit_price = 0
 
     sum_acc_quant = 0
-
     sum_total_unit_price = 0
+
+    max_info = {"max_tr_quant": 0, "max_tr_date": "", "max_tr_ratio": 0.0, "tot_tr_quant": 0}
 
     for row in res['result']:
       sum_acc_quant += row['acc_quant']
     #print("sum_acc_quant : {}".format(sum_acc_quant))
+
+    # 유통주식수 구하기 (getTest 참조)
+    company_detail_info = getCompanyDetailInfo(item_code)
+    print(company_detail_info)
+    max_info['tot_tr_quant'] = sum_acc_quant
 
     for row in res['result']:
         biz_date = row['bizdate']
         biz_date = pd.to_datetime(biz_date)
         if end_date < biz_date:
             continue
+
+        # MAX 값 구하기
+        if row['acc_quant'] > max_info.get("max_tr_quant"):
+            max_info['max_tr_quant'] = row['acc_quant']
+            max_info['max_tr_date'] = biz_date
 
         ratio = row['acc_quant'] / sum_acc_quant
 
@@ -102,14 +109,14 @@ def getSise(item_code, start_date, end_date):
 
         sum_total_unit_price += row['acc_quant'] * row['close_val']
 
-
-    print("외국인 보유 주수 : {}".format(sum_real_frgn_pure_buy_quant))
-    print("기관 보유 주수 : {}".format(sum_real_organ_pure_buy_quant))
-    print("개인 보유 주수 : {}".format(sum_real_indi_pure_buy_quant))
-    print("외국인 평단 : {}".format(sum_frgn_unit_price/sum_frgn_pure_buy_quant))
-    print("기관 평단 : {}".format(sum_organ_unit_price/sum_organ_pure_buy_quant))
-    print("개인 평단 : {}".format(sum_indi_unit_price/sum_indi_pure_buy_quant))
-    print("거래량별 평단 : {}".format(sum_total_unit_price/sum_acc_quant))
+    #print("외국인 보유 주수 : {}".format(sum_real_frgn_pure_buy_quant))
+    #print("기관 보유 주수 : {}".format(sum_real_organ_pure_buy_quant))
+    #print("개인 보유 주수 : {}".format(sum_real_indi_pure_buy_quant))
+    #print("외국인 평단 : {}".format(sum_frgn_unit_price/sum_frgn_pure_buy_quant))
+    #print("기관 평단 : {}".format(sum_organ_unit_price/sum_organ_pure_buy_quant))
+    #print("개인 평단 : {}".format(sum_indi_unit_price/sum_indi_pure_buy_quant))
+    #print("거래량별 평단 : {}".format(sum_total_unit_price/sum_acc_quant))
+    print(max_info)
 
     return_value = {}
     result = []
@@ -132,3 +139,25 @@ def getSise(item_code, start_date, end_date):
 #start_date = input()
 
 #getSise(item_code, start_date)
+
+def getCompanyDetailInfo(code):
+
+    return_result = {"tot_stock_cnt": 0, "cir_stock_ratio": 0.0, "cir_stock_cnt": 0}
+    base_url = 'https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd=' + code
+    res = requests.get(base_url)
+
+    soup = BeautifulSoup(res.content, 'html.parser')
+    result = soup.select("#cTB11 > tbody > tr:nth-child(7) > td")
+
+    result_list = result[0].text.strip().split("/")
+    tot_stock_cnt = int(result_list[0].replace("주", "").replace(",", ""))
+    cir_stock_ratio = float(result_list[1].replace("%", "").strip())
+    cir_stock_cnt = int(tot_stock_cnt * cir_stock_ratio / 100)
+
+    return_result['tot_stock_cnt'] = tot_stock_cnt
+    return_result['cir_stock_ratio'] = cir_stock_ratio
+    return_result['cir_stock_cnt'] = cir_stock_cnt
+
+    print(return_result)
+
+    return return_result

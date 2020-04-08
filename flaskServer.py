@@ -5,6 +5,7 @@ from flask import jsonify
 from flask_cors import CORS
 import getSise
 import getJongmokInfo
+import getDailyInfoTotal
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -41,6 +42,14 @@ def getCodeInfo():
 def getCodeName():
     item_name = request.args.get("item_name")
     dic_res = getJongmokInfo.getCodeName(item_name)
+    response = jsonify(dic_res)
+
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    return response
+
+@app.route("/globalIndex")
+def getGlobalIndex():
+    dic_res = getDailyInfoTotal.getGlobalIndex()
     response = jsonify(dic_res)
 
     response.headers.add("Access-Control-Allow-Credentials", "true")
