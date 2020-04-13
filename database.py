@@ -11,7 +11,7 @@ class Database():
             'host': mysql_addr,
             'port': 3306,
             'user': 'root',
-            'passwd': 'root',
+            'passwd': 'Rkakrnl1!',
             'db': 'stock',
             'charset': 'utf8mb4'}
 
