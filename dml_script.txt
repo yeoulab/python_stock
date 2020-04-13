@@ -31,3 +31,13 @@ create table `tb_m_jongmok` (
   `for_hold_per` double,
   primary key(jongmok_code)
   )  default CHARSET utf8 collate utf8_unicode_ci;
+ create table `tb_l_diary` (
+  `jongmok_code` char(6) not null,
+  `start_date` date not null,
+  `company_name` char(50) not null,
+  `buy_reason` text,
+  `sell_reason` text,
+  `suc_reason` text,
+  `fail_reasion` text,
+  primary key(jongmok_code, start_date)
+  );

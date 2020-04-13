@@ -64,7 +64,12 @@ def getSise(item_code, start_date, end_date):
     sum_acc_quant = 0
     sum_total_unit_price = 0
 
-    max_info = {"max_tr_quant": 0, "max_tr_date": "", "max_tr_ratio": 0.0, "tot_tr_quant": 0}
+    max_info = {"max_tr_quant": 0,
+                "max_tr_date": "",
+                "max_tr_ratio": 0.0,
+                "tot_tr_quant": 0,
+                "max_cir_ratio": 0.0,
+                "tot_cir_ratio": 0.0}
 
     for row in res['result']:
       sum_acc_quant += row['acc_quant']
@@ -72,7 +77,7 @@ def getSise(item_code, start_date, end_date):
 
     # 유통주식수 구하기 (getTest 참조)
     company_detail_info = getCompanyDetailInfo(item_code)
-    print(company_detail_info)
+    #print(company_detail_info)
     max_info['tot_tr_quant'] = sum_acc_quant
 
     for row in res['result']:
@@ -84,7 +89,7 @@ def getSise(item_code, start_date, end_date):
         # MAX 값 구하기
         if row['acc_quant'] > max_info.get("max_tr_quant"):
             max_info['max_tr_quant'] = row['acc_quant']
-            max_info['max_tr_date'] = biz_date
+            max_info['max_tr_date'] = str(biz_date)[:10]
 
         ratio = row['acc_quant'] / sum_acc_quant
 
@@ -116,9 +121,21 @@ def getSise(item_code, start_date, end_date):
     #print("기관 평단 : {}".format(sum_organ_unit_price/sum_organ_pure_buy_quant))
     #print("개인 평단 : {}".format(sum_indi_unit_price/sum_indi_pure_buy_quant))
     #print("거래량별 평단 : {}".format(sum_total_unit_price/sum_acc_quant))
+    return_value = {}
+
+    max_info['max_tr_ratio'] = round(float(int(max_info.get('max_tr_quant')) / int(max_info.get('tot_tr_quant')))*100, 2)
+    max_info["max_cir_ratio"] = round(float(int(max_info["max_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt"))*100), 2)
+    max_info["tot_cir_ratio"] = round(
+        float(int(max_info["tot_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt")) * 100), 2)
+    max_info['max_tr_quant'] = format(int(max_info.get('max_tr_quant')), ",")
+    max_info['tot_tr_quant'] = format(int(max_info.get('tot_tr_quant')), ",")
+    return_value.setdefault('max_info', max_info)
+
+    company_detail_info['tot_stock_cnt'] = format(company_detail_info.get('tot_stock_cnt'), ",")
+    company_detail_info['cir_stock_cnt'] = format(company_detail_info.get('cir_stock_cnt'), ",")
+    return_value.setdefault('company_detail_info', company_detail_info)
     print(max_info)
 
-    return_value = {}
     result = []
     result.append({'subject': '외국인', 'value': format(sum_real_frgn_pure_buy_quant,","), 'pre_value': 0})
     result.append({'subject': '기관', 'value': format(sum_real_organ_pure_buy_quant,","), 'pre_value': 0})
@@ -154,10 +171,11 @@ def getCompanyDetailInfo(code):
     cir_stock_ratio = float(result_list[1].replace("%", "").strip())
     cir_stock_cnt = int(tot_stock_cnt * cir_stock_ratio / 100)
 
+    #return_result['tot_stock_cnt'] = format(tot_stock_cnt, ",")
+    #return_result['cir_stock_ratio'] = cir_stock_ratio
+    #return_result['cir_stock_cnt'] = format(cir_stock_cnt, ",")
     return_result['tot_stock_cnt'] = tot_stock_cnt
     return_result['cir_stock_ratio'] = cir_stock_ratio
     return_result['cir_stock_cnt'] = cir_stock_cnt
-
-    print(return_result)
 
     return return_result
