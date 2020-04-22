@@ -7,6 +7,9 @@ def getSise(item_code, start_date, end_date):
     # 정보를 가져오기 위한 url
     url = 'https://m.stock.naver.com/api/item/getTrendList.nhn'
 
+    # 중간값을 가져오기 위한 url
+    url2 = 'https://m.stock.naver.com/api/item/getPriceDayList.nhn'
+
     # 2016 ~ 2020년도의 휴장일
     df = pd.DataFrame({'hdays':['2020-01-01','2020-01-24','2020-01-27','2020-04-15',
                               '2020-04-30','2020-05-01','2020-05-05','2020-09-30','2020-10-01',
@@ -49,20 +52,35 @@ def getSise(item_code, start_date, end_date):
     response = requests.get(url, params=params)
     res = response.json()
 
+    params2 = {'code': item_code, 'pageSize': len(mdays)}
+    response2 = requests.get(url2, params=params2)
+    res2 = response2.json()
+    #print(res['result'][0])
+    #print(res2['result']['list'][0])
+    price_list = res2['result']['list']
+
+    # 외인/기관/개인 순 매수/매도 량
     sum_real_frgn_pure_buy_quant = 0
     sum_real_organ_pure_buy_quant = 0
     sum_real_indi_pure_buy_quant = 0
 
+    # 외인/기관/개인 단가 구하기 위한 변수
     sum_frgn_pure_buy_quant = 0
     sum_organ_pure_buy_quant = 0
     sum_indi_pure_buy_quant = 0
-
     sum_frgn_unit_price = 0
     sum_organ_unit_price = 0
     sum_indi_unit_price = 0
+    sum_total_unit_price = 0
+
+    # 외인/기관/개인 단가 구하기 위한 변수(평균가격으로)
+    sum_frgn_unit_avg_price = 0
+    sum_organ_unit_avg_price = 0
+    sum_indi_unit_avg_price = 0
+    sum_total_unit_avg_price = 0
 
     sum_acc_quant = 0
-    sum_total_unit_price = 0
+    today_price = res2['result']['list'][0]['ncv']
 
     max_info = {"max_tr_quant": 0,
                 "max_tr_date": "",
@@ -71,20 +89,39 @@ def getSise(item_code, start_date, end_date):
                 "max_cir_ratio": 0.0,
                 "tot_cir_ratio": 0.0}
 
+    # end date 를 고려한 거래량
     for row in res['result']:
-      sum_acc_quant += row['acc_quant']
-    #print("sum_acc_quant : {}".format(sum_acc_quant))
+        biz_date = row['bizdate']
+        biz_date = pd.to_datetime(biz_date)
+        if end_date < biz_date:
+            continue
+
+        sum_acc_quant += row['acc_quant']
 
     # 유통주식수 구하기 (getTest 참조)
     company_detail_info = getCompanyDetailInfo(item_code)
     #print(company_detail_info)
     max_info['tot_tr_quant'] = sum_acc_quant
 
+    cnt = -1
+    real_cnt = 0
+
     for row in res['result']:
+        cnt = cnt + 1
         biz_date = row['bizdate']
         biz_date = pd.to_datetime(biz_date)
         if end_date < biz_date:
             continue
+
+        # 거래량 평균을 구하기 위한 real day cnt
+        real_cnt = real_cnt + 1
+
+        # 중간값 구하기
+        #price_list[cnt]['hv'] # 고가
+        #price_list[cnt]['lv'] # 저가
+        #price_list[cnt]['ov']  # 시가
+        #price_list[cnt]['ncv'] # 종가
+        avg_price = int((price_list[cnt]['lv'] + price_list[cnt]['hv']) / 2)
 
         # MAX 값 구하기
         if row['acc_quant'] > max_info.get("max_tr_quant"):
@@ -100,33 +137,54 @@ def getSise(item_code, start_date, end_date):
         sum_frgn_pure_buy_quant += row['frgn_pure_buy_quant'] * ratio
         sum_organ_pure_buy_quant += row['organ_pure_buy_quant'] * ratio
         sum_indi_pure_buy_quant += row['indi_pure_buy_quant'] * ratio
-        #print("organ_pure_buy_quant :{}".format(row['organ_pure_buy_quant'] * ratio))
 
+        # 종가로만 판단
         frgn_unit_price = row['frgn_pure_buy_quant'] * row['close_val'] * ratio
         organ_unit_price = row['organ_pure_buy_quant'] * row['close_val'] * ratio
         indi_unit_price = row['indi_pure_buy_quant'] * row['close_val'] * ratio
-        #print("organ_pure_buy_quant : {}".format(row['organ_pure_buy_quant']))
-        #print("ratio : {}".format(ratio))
-        #print("organ_utni_price : {}".format(row['organ_pure_buy_quant'] * row['close_val'] * ratio))
         sum_frgn_unit_price += frgn_unit_price
         sum_organ_unit_price += organ_unit_price
         sum_indi_unit_price += indi_unit_price
-
         sum_total_unit_price += row['acc_quant'] * row['close_val']
 
-    #print("외국인 보유 주수 : {}".format(sum_real_frgn_pure_buy_quant))
-    #print("기관 보유 주수 : {}".format(sum_real_organ_pure_buy_quant))
-    #print("개인 보유 주수 : {}".format(sum_real_indi_pure_buy_quant))
-    #print("외국인 평단 : {}".format(sum_frgn_unit_price/sum_frgn_pure_buy_quant))
-    #print("기관 평단 : {}".format(sum_organ_unit_price/sum_organ_pure_buy_quant))
-    #print("개인 평단 : {}".format(sum_indi_unit_price/sum_indi_pure_buy_quant))
-    #print("거래량별 평단 : {}".format(sum_total_unit_price/sum_acc_quant))
+        # 평균가격( avg(시가, 종가) )
+        frgn_unit_avg_price = row['frgn_pure_buy_quant'] * avg_price * ratio
+        organ_unit_avg_price = row['organ_pure_buy_quant'] * avg_price * ratio
+        indi_unit_avg_price = row['indi_pure_buy_quant'] * avg_price * ratio
+        sum_frgn_unit_avg_price += frgn_unit_avg_price
+        sum_organ_unit_avg_price += organ_unit_avg_price
+        sum_indi_unit_avg_price += indi_unit_avg_price
+        sum_total_unit_avg_price += row['acc_quant'] * avg_price
+
     return_value = {}
+
+    result = []
+    result.append({'subject': '외국인', 'value': format(sum_real_frgn_pure_buy_quant,","), 'pre_value': 0})
+    result.append({'subject': '기관', 'value': format(sum_real_organ_pure_buy_quant,","), 'pre_value': 0})
+    result.append({'subject': '개인', 'value': format(sum_real_indi_pure_buy_quant,","), 'pre_value': 0})
+    result.append({'subject': '평균거래량', 'value': format(int((sum_acc_quant - int(max_info.get('max_tr_quant'))) / (real_cnt-1)), ","), 'pre_value': 0})
+    result.append({'subject': '외국인 평단(종가)', 'value': format(int(sum_frgn_unit_price/sum_frgn_pure_buy_quant),","), 'pre_value': 0})
+    result.append({'subject': '기관 평단(종가)', 'value': format(int(sum_organ_unit_price/sum_organ_pure_buy_quant),","), 'pre_value': 0})
+    result.append({'subject': '개인 평단(종가)', 'value': format(int(sum_indi_unit_price/sum_indi_pure_buy_quant),","), 'pre_value': 0})
+    result.append({'subject': '거래량 평단(종가)', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
+
+    end_price_ratio = int((int(sum_indi_unit_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
+    end_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(end_price_ratio) + "%"
+    result.append({'subject': '비율(종가)', 'value': end_price_ratio_str, 'pre_value': ''})
+
+    result.append({'subject': '외국인 평단(평균가)', 'value': format(int(sum_frgn_unit_avg_price / sum_frgn_pure_buy_quant), ","),'pre_value': 0})
+    result.append({'subject': '기관 평단(평균가)', 'value': format(int(sum_organ_unit_avg_price / sum_organ_pure_buy_quant), ","), 'pre_value': 0})
+    result.append({'subject': '개인 평단(평균가)', 'value': format(int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant), ","), 'pre_value': 0})
+    result.append({'subject': '거래량 평단(평균가)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","), 'pre_value': 0})
+
+    today_price_ratio = int((int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
+    today_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(today_price_ratio)+"%"
+    result.append({'subject': '비율(평균가)', 'value': today_price_ratio_str, 'pre_value': ''})
+    return_value.setdefault('result', result)
 
     max_info['max_tr_ratio'] = round(float(int(max_info.get('max_tr_quant')) / int(max_info.get('tot_tr_quant')))*100, 2)
     max_info["max_cir_ratio"] = round(float(int(max_info["max_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt"))*100), 2)
-    max_info["tot_cir_ratio"] = round(
-        float(int(max_info["tot_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt")) * 100), 2)
+    max_info["tot_cir_ratio"] = round(float(int(max_info["tot_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt")) * 100), 2)
     max_info['max_tr_quant'] = format(int(max_info.get('max_tr_quant')), ",")
     max_info['tot_tr_quant'] = format(int(max_info.get('tot_tr_quant')), ",")
     return_value.setdefault('max_info', max_info)
@@ -134,18 +192,6 @@ def getSise(item_code, start_date, end_date):
     company_detail_info['tot_stock_cnt'] = format(company_detail_info.get('tot_stock_cnt'), ",")
     company_detail_info['cir_stock_cnt'] = format(company_detail_info.get('cir_stock_cnt'), ",")
     return_value.setdefault('company_detail_info', company_detail_info)
-    print(max_info)
-
-    result = []
-    result.append({'subject': '외국인', 'value': format(sum_real_frgn_pure_buy_quant,","), 'pre_value': 0})
-    result.append({'subject': '기관', 'value': format(sum_real_organ_pure_buy_quant,","), 'pre_value': 0})
-    result.append({'subject': '개인', 'value': format(sum_real_indi_pure_buy_quant,","), 'pre_value': 0})
-    result.append({'subject': '가중치 외국인 평단', 'value': format(int(sum_frgn_unit_price/sum_frgn_pure_buy_quant),","), 'pre_value': 0})
-    result.append({'subject': '가중치 기관 평단', 'value': format(int(sum_organ_unit_price/sum_organ_pure_buy_quant),","), 'pre_value': 0})
-    result.append({'subject': '가중치 개인 평단', 'value': format(int(sum_indi_unit_price/sum_indi_pure_buy_quant),","), 'pre_value': 0})
-    result.append({'subject': '가중치 거래량 평단', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
-    #print(result)
-    return_value.setdefault('result', result)
 
     return return_value
 
