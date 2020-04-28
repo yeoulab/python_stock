@@ -17,7 +17,7 @@ def insertDiaryDb(data):
     print(data.get('sell_reason'))
     db_class = database.Database()
     str_space = ""
-    sql = "INSERT INTO tb_l_diary('%s','%s','%s','%s','%s','%s','%s')" \
+    sql = "INSERT INTO tb_l_diary VALUES('%s','%s','%s','%s','%s','%s','%s')" \
           % (data.get('jongmok_code'), data.get('start_date'), data.get('company_name'),data.get('buy_reason'),
              str_space,str_space,str_space)
     db_class.execute(sql)

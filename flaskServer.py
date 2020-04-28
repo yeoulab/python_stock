@@ -6,7 +6,10 @@ from bs4 import BeautifulSoup
 from flask import jsonify
 from flask_cors import CORS, cross_origin
 import getSise, getJongmokInfo, getDailyInfoTotal, getDiary
+import logging
 
+
+logging.basicConfig(filename="project.log", level=logging.INFO)
 app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
