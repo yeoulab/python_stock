@@ -41,3 +41,30 @@ create table `tb_m_jongmok` (
   `fail_reasion` text,
   primary key(jongmok_code, start_date)
   );
+create table `tb_l_jongmok_stat` (
+  `jongmok_code` char(6) not null,
+  `tr_date` date not null,
+  `for_tr_cnt` int,
+  `ins_tr_cnt` int,
+  `ind_tr_cnt` int,
+  `avg_tr_cnt` int, 
+  `for_avg_fin_amt` int,
+  `ins_avg_fin_amt` int,
+  `ind_avg_fin_amt` int,
+  `tr_avg_fin_amt` int,
+  `fin_amt` int,
+  `for_avg_avg_amt` int,
+  `ins_avg_avg_amt` int,
+  `ind_avg_avg_amt` int,
+  `tr_avg_avg_amt` int,
+  `max_tr_qunat` int,
+  `max_tr_date` date,
+  `max_tr_ratio` double,
+  `tot_tr_quant` int,
+  `max_cir_ratio` double,
+  `tot_cir_ratio` double,
+  `tot_stock_cnt` int,
+  `cir_stock_ratio` double,
+  `cir_stock_cnt` int,
+  primary key(jongmok_code, tr_date)
+  )  default CHARSET utf8 collate utf8_unicode_ci;
