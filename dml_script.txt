@@ -44,10 +44,12 @@ create table `tb_m_jongmok` (
 create table `tb_l_jongmok_stat` (
   `jongmok_code` char(6) not null,
   `tr_date` date not null,
+  `start_date` date,
+  `company_name` char(50) not null,
   `for_tr_cnt` int,
   `ins_tr_cnt` int,
   `ind_tr_cnt` int,
-  `avg_tr_cnt` int, 
+  `avg_tr_cnt` int,
   `for_avg_fin_amt` int,
   `ins_avg_fin_amt` int,
   `ind_avg_fin_amt` int,

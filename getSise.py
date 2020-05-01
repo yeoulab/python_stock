@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 from bs4 import BeautifulSoup
+import common.const as const
 
 def getSise(item_code, start_date, end_date):
     # 정보를 가져오기 위한 url
@@ -10,22 +11,8 @@ def getSise(item_code, start_date, end_date):
     # 중간값을 가져오기 위한 url
     url2 = 'https://m.stock.naver.com/api/item/getPriceDayList.nhn'
 
-    # 2016 ~ 2020년도의 휴장일
-    df = pd.DataFrame({'hdays':['2020-01-01','2020-01-24','2020-01-27','2020-04-15',
-                              '2020-04-30','2020-05-01','2020-05-05','2020-09-30','2020-10-01',
-                              '2020-10-02','2020-10-09','2020-12-25','2020-12-31',
-                              '2019-01-01','2019-02-04','2019-02-05','2019-02-06','2019-03-01',
-                              '2019-05-01','2019-05-06','2019-06-06','2019-08-15','2019-09-12','2019-09-13',
-                              '2019-10-03','2019-10-09','2019-12-25','2019-12-31','2018-01-01','2018-02-15',
-                              '2018-02-16','2018-03-01','2018-05-01','2018-05-07','2018-05-22','2018-06-06',
-                              '2018-06-13','2018-08-15','2018-09-24','2018-09-25','2018-09-26','2018-10-03',
-                              '2018-10-09','2018-12-25','2018-12-31','2017-01-27','2017-01-30','2017-03-01',
-                              '2017-05-01','2017-05-03','2017-05-05','2017-05-09','2017-06-06','2017-08-15',
-                              '2017-10-02','2017-10-03','2017-10-04','2017-10-05','2017-10-06','2017-10-09',
-                              '2017-12-25','2017-12-29','2016-01-01','2016-02-08','2016-02-09','2016-02-10',
-                              '2016-03-01','2016-04-13','2016-05-05','2016-05-06','2016-06-06','2016-08-15',
-                              '2016-09-14','2016-09-15','2016-09-16','2016-10-03','2016-12-30']})
-    hdays = pd.to_datetime(df['hdays'])
+    # 휴장일 값 조회
+    hdays = const.hdays
 
     # 입력받은 일자 ~ 현재일자까지의 영업일 리스트
     start_date = pd.to_datetime(start_date)
@@ -37,7 +24,6 @@ def getSise(item_code, start_date, end_date):
     else:
         end_date = pd.to_datetime(end_date)
 
-    print("start_date : {}".format(start_date))
     mdays = pd.date_range(start_date, tday, freq='B')
 
     # 영업일 리스트에서 휴장일을 제외
@@ -98,6 +84,7 @@ def getSise(item_code, start_date, end_date):
 
         sum_acc_quant += row['acc_quant']
 
+    #print("sum_acc_qunat : {}".format(sum_acc_quant))
     # 유통주식수 구하기 (getTest 참조)
     company_detail_info = getCompanyDetailInfo(item_code)
     #print(company_detail_info)

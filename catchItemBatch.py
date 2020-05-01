@@ -2,26 +2,81 @@ import database
 import pandas as pd
 import getSise
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+import sys
+import requests
+import common.const as const
 
-db_class = database.Database()
-
-sql = "SELECT jongmok_code FROM tb_m_jongmok where jongmok_code='086980'"
-result = db_class.execute_all(sql)
-logging.basicConfig(filename="batch.log", level=logging.INFO)
-
-url = 'https://m.stock.naver.com/api/item/getPriceDayList.nhn'
-start_date = pd.to_datetime('20200101')
-end_date = pd.to_datetime('20200301')
-tday = pd.to_datetime(datetime.today().strftime("%Y%m%d"))
+# 파라미터 입력을 받지 않았으면, 프로그램 종료
+if len(sys.argv) == 1:
+    sys.exit()
 
 db_class = database.Database()
 sql = "INSERT INTO tb_l_jongmok_stat VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s'" \
-      ",'%s','%s','%s','%s','%s','%s','%s','%s','%s')"
+      ",'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
+#sql = "SELECT jongmok_code FROM tb_m_jongmok where jongmok_code='086980'"
+#result = db_class.execute_all(sql)
+file_name = "batch_" + str(datetime.today().strftime("%Y%m%d")) +"_" + sys.argv[1] + "_" + sys.argv[2] + ".log"
+logging.basicConfig(filename=file_name, level=logging.INFO)
 
-for item in result:
-    res = getSise.getSise(item['jongmok_code'], start_date, end_date)
+# 입력 받은 조건으로 종목 조회하기
+# sosok = 0(코스피), 17Page 까지있음
+# sosok = 1(코스닥), 15Page 까지 있음
+url = "https://m.stock.naver.com/api/json/sise/siseListJson.nhn"
+params = {"menu": "market_sum", "sosok": sys.argv[1], "pageSize": 100, "page": sys.argv[2]}
+response = requests.get(url, params=params)
+res = response.json()
+# res['result']['itemList'] -> ItemList 의 'cd' 값이 code, 'nm' 값이 종목명
+
+# 시작일자를 어떻게 정할 것인가?
+# 1. 직전 6개월 ~ 직전 1개월 이내에 거래량이 가장 많은 일자
+tday = pd.to_datetime(datetime.today().strftime("%Y%m%d"))
+now_before_six_month = tday + timedelta(days=-180)
+now_before_one_month = tday + timedelta(days=-30)
+#print("tday : {}".format(tday))
+#print("now_before_six_month : {}".format(now_before_six_month))
+#print("now_before_one_month : {}".format(now_before_one_month))
+
+# 2. 직전 6개월 ~ 현재 까지의 일수를 구함
+mdays = pd.date_range(now_before_six_month, tday, freq='B')
+
+# 3. 휴장일 제외
+# 영업일 리스트에서 휴장일을 제외
+hdays = const.hdays
+for hday in hdays:
+    if now_before_six_month <= hday <= tday:
+        mdays = mdays.drop(hday)
+#print("mdays after : {}".format(len(mdays)))
+
+# 거래량 구하기
+url = 'https://m.stock.naver.com/api/item/getPriceDayList.nhn'
+for item in res['result']['itemList']:
+    # 직전 6개월 ~ 현재 까지의 가격 구하기
+    params = {'code': item['cd'], 'pageSize': len(mdays)}
+    response = requests.get(url, params=params)
+    res = response.json()
+
+    # 최대 거래량 발생한 일자 구하기
+    max_tr_dt = ""
+    max_tr_cnt = int(0)
+    for data in res['result']['list']:
+        biz_date = data['dt']
+        biz_date = pd.to_datetime(biz_date)
+        #print("biz_date :{}".format(biz_date))
+        if now_before_one_month < biz_date:
+            continue
+
+        #print("거래량 : {}".format(data['aq']))
+
+        if int(data['aq']) > max_tr_cnt:
+            max_tr_cnt = int(data['aq'])
+            max_tr_dt = biz_date
+
+    #print("item : {}".format(item['cd']))
+    #print("max_tr_cnt :{}".format(max_tr_cnt))
+    #print("max_tr_dt : {}".format(max_tr_dt))
+    res = getSise.getSise(item['cd'], max_tr_dt, tday)
 
     i = 0
     result_list = []
@@ -35,8 +90,10 @@ for item in result:
     max_info = res['max_info']
     com_info = res['company_detail_info']
 
-    insert_sql = sql % (item['jongmok_code']  # jongmok_code
+    insert_sql = sql % (item['cd']  # jongmok_code
                         , tday  # tr_date
+                        , max_tr_dt # start_date
+                        , item['nm'] # company_name
                         , result_list[0]  # for_tr_cnt
                         , result_list[1]  # ins_tr_cnt
                         , result_list[2] # ind_tr_cnt
@@ -64,4 +121,4 @@ for item in result:
     logging.log(logging.INFO, insert_sql)
     db_class.execute(insert_sql)
     db_class.commit()
-    time.sleep(5)
+    time.sleep(3)
