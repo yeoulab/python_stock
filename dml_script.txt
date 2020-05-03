@@ -65,8 +65,8 @@ create table `tb_l_jongmok_stat` (
   `tot_tr_quant` int,
   `max_cir_ratio` double,
   `tot_cir_ratio` double,
-  `tot_stock_cnt` int,
+  `tot_stock_cnt` bigint,
   `cir_stock_ratio` double,
-  `cir_stock_cnt` int,
+  `cir_stock_cnt` bigint,
   primary key(jongmok_code, tr_date)
   )  default CHARSET utf8 collate utf8_unicode_ci;

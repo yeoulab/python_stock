@@ -170,8 +170,12 @@ def getSise(item_code, start_date, end_date):
     return_value.setdefault('result', result)
 
     max_info['max_tr_ratio'] = round(float(int(max_info.get('max_tr_quant')) / int(max_info.get('tot_tr_quant')))*100, 2)
-    max_info["max_cir_ratio"] = round(float(int(max_info["max_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt"))*100), 2)
-    max_info["tot_cir_ratio"] = round(float(int(max_info["tot_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt")) * 100), 2)
+    if int(company_detail_info.get("cir_stock_cnt")) > 0:
+        max_info["max_cir_ratio"] = round(float(int(max_info["max_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt"))*100), 2)
+        max_info["tot_cir_ratio"] = round(float(int(max_info["tot_tr_quant"]) / int(company_detail_info.get("cir_stock_cnt")) * 100), 2)
+    else:
+        max_info["max_cir_ratio"] = 0
+        max_info["tot_cir_ratio"] = 0
     max_info['max_tr_quant'] = format(int(max_info.get('max_tr_quant')), ",")
     max_info['tot_tr_quant'] = format(int(max_info.get('tot_tr_quant')), ",")
     return_value.setdefault('max_info', max_info)
@@ -198,6 +202,9 @@ def getCompanyDetailInfo(code):
 
     soup = BeautifulSoup(res.content, 'html.parser')
     result = soup.select("#cTB11 > tbody > tr:nth-child(7) > td")
+    if not result:
+        print("result==[]")
+        return return_result
 
     result_list = result[0].text.strip().split("/")
     tot_stock_cnt = int(result_list[0].replace("주", "").replace(",", ""))
