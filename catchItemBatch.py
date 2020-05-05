@@ -15,8 +15,6 @@ if len(sys.argv) == 1:
 db_class = database.Database()
 sql = "INSERT INTO tb_l_jongmok_stat VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s'" \
       ",'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
-#sql = "SELECT jongmok_code FROM tb_m_jongmok where jongmok_code='086980'"
-#result = db_class.execute_all(sql)
 file_name = "batch_" + str(datetime.today().strftime("%Y%m%d")) +"_" + sys.argv[1] + "_" + sys.argv[2] + ".log"
 logging.basicConfig(filename=file_name, level=logging.INFO)
 
