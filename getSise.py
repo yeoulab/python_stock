@@ -24,6 +24,8 @@ def getSise(item_code, start_date, end_date):
     else:
         end_date = pd.to_datetime(end_date)
 
+    print("start_date : {}".format(start_date))
+    print("tday : {}".format(tday))
     mdays = pd.date_range(start_date, tday, freq='B')
 
     # 영업일 리스트에서 휴장일을 제외
@@ -154,46 +156,49 @@ def getSise(item_code, start_date, end_date):
     if sum_frgn_pure_buy_quant != 0:
         result.append({'subject': '외국인 평단(종가)', 'value': format(int(sum_frgn_unit_price/sum_frgn_pure_buy_quant),","), 'pre_value': 0})
     else:
-        result.append({'subject': '외국인 평단(종가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '외국인 평단(종가)', 'value': '0', 'pre_value': 0})
 
     if sum_organ_pure_buy_quant != 0:
         result.append({'subject': '기관 평단(종가)', 'value': format(int(sum_organ_unit_price/sum_organ_pure_buy_quant),","), 'pre_value': 0})
     else:
-        result.append({'subject': '기관 평단(종가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '기관 평단(종가)', 'value': '0', 'pre_value': 0})
 
-    result.append({'subject': '거래량 평단(종가)', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
+    #result.append({'subject': '거래량 평단(종가)', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
 
     if sum_indi_pure_buy_quant != 0:
         result.append({'subject': '개인 평단(종가)', 'value': format(int(sum_indi_unit_price/sum_indi_pure_buy_quant),","), 'pre_value': 0})
+        result.append({'subject': '거래량 평단(종가)', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
 
         end_price_ratio = int((int(sum_indi_unit_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
         end_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(end_price_ratio) + "%"
         result.append({'subject': '비율(종가)', 'value': end_price_ratio_str, 'pre_value': ''})
     else:
-        result.append({'subject': '개인 평단(종가)', 'value': 0, 'pre_value': 0})
-        result.append({'subject': '비율(종가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '개인 평단(종가)', 'value': '0', 'pre_value': 0})
+        result.append({'subject': '거래량 평단(종가)', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
+        result.append({'subject': '비율(종가)', 'value': '0', 'pre_value': 0})
 
     if sum_frgn_pure_buy_quant != 0:
         result.append({'subject': '외국인 평단(평균가)', 'value': format(int(sum_frgn_unit_avg_price / sum_frgn_pure_buy_quant), ","),'pre_value': 0})
     else:
-        result.append({'subject': '외국인 평단(평균가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '외국인 평단(평균가)', 'value': '0', 'pre_value': 0})
 
     if sum_organ_pure_buy_quant != 0:
         result.append({'subject': '기관 평단(평균가)', 'value': format(int(sum_organ_unit_avg_price / sum_organ_pure_buy_quant), ","),'pre_value': 0})
     else:
-        result.append({'subject': '기관 평단(평균가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '기관 평단(평균가)', 'value': '0', 'pre_value': 0})
 
-    result.append({'subject': '거래량 평단(평균가)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","), 'pre_value': 0})
+    #result.append({'subject': '거래량 평단(평균가)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","), 'pre_value': 0})
 
     if sum_indi_pure_buy_quant != 0:
         result.append({'subject': '개인 평단(평균가)', 'value': format(int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant), ","),'pre_value': 0})
-
+        result.append({'subject': '거래량 평단(평균가)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","), 'pre_value': 0})
         today_price_ratio = int((int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
         today_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(today_price_ratio)+"%"
         result.append({'subject': '비율(평균가)', 'value': today_price_ratio_str, 'pre_value': ''})
     else:
-        result.append({'subject': '개인 평단(평균가)', 'value': 0, 'pre_value': 0})
-        result.append({'subject': '비율(평균가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '개인 평단(평균가)', 'value': '0', 'pre_value': 0})
+        result.append({'subject': '거래량 평단(평균가)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","), 'pre_value': 0})
+        result.append({'subject': '비율(평균가)', 'value': '0', 'pre_value': 0})
 
     return_value.setdefault('result', result)
 

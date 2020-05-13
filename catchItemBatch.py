@@ -15,7 +15,7 @@ if len(sys.argv) == 1:
 db_class = database.Database()
 sql = "INSERT INTO tb_l_jongmok_stat VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s'" \
       ",'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
-file_name = "batch_" + str(datetime.today().strftime("%Y%m%d")) +"_" + sys.argv[1] + "_" + sys.argv[2] + ".log"
+file_name = "/home/yeoulab_ml/batch_" + str(datetime.today().strftime("%Y%m%d")) +"_" + sys.argv[1] + "_" + sys.argv[2] + ".log"
 logging.basicConfig(filename=file_name, level=logging.INFO)
 
 # 입력 받은 조건으로 종목 조회하기
@@ -74,6 +74,10 @@ for item in res['result']['itemList']:
     #print("item : {}".format(item['cd']))
     #print("max_tr_cnt :{}".format(max_tr_cnt))
     #print("max_tr_dt : {}".format(max_tr_dt))
+    print("code : {}".format(item['cd']))
+    if max_tr_dt == "":
+        continue
+
     res = getSise.getSise(item['cd'], max_tr_dt, tday)
 
     i = 0
@@ -82,6 +86,7 @@ for item in res['result']['itemList']:
         if i == 8 or i == 13:
             result_list.append(int(data['value'].split('/')[0].split(':')[1].replace(",","")))
         else:
+            #print(data['value'])
             result_list.append(int(data['value'].replace(",","")))
         i = i + 1
 
