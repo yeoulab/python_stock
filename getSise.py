@@ -93,6 +93,11 @@ def getSise(item_code, start_date, end_date):
     cnt = -1
     real_cnt = 0
 
+    # 추세선을 만들기 위한 list of list ( 10 영업일 마다 )
+    biz_date_cnt = 0
+    transition = []
+    result_transition = []
+
     for row in res['result']:
         cnt = cnt + 1
         biz_date = row['bizdate']
@@ -102,6 +107,7 @@ def getSise(item_code, start_date, end_date):
 
         # 거래량 평균을 구하기 위한 real day cnt
         real_cnt = real_cnt + 1
+        biz_date_cnt = biz_date_cnt + 1
 
         # 중간값 구하기
         #price_list[cnt]['hv'] # 고가
@@ -143,6 +149,67 @@ def getSise(item_code, start_date, end_date):
         sum_indi_unit_avg_price += indi_unit_avg_price
         sum_total_unit_avg_price += row['acc_quant'] * avg_price
 
+        if biz_date_cnt % 10 == 0:
+            # 시작날짜
+            transition.append(str(biz_date)[0:10])
+
+            # list 에 값을 순서대로 담는다
+            transition.append(format(sum_real_frgn_pure_buy_quant,","))  # 외국인 거래량
+            transition.append(format(sum_real_organ_pure_buy_quant, ","))  # 기관 거래량
+            transition.append(format(sum_real_indi_pure_buy_quant, ","))  # 개인 거래량
+            transition.append(format(int((sum_acc_quant - int(max_info.get('max_tr_quant'))) / (real_cnt-1)), ","))  # 평균 거래량
+
+            # 외국인 종가기준
+            if sum_frgn_pure_buy_quant != 0:
+                transition.append(format(int(sum_frgn_unit_price / sum_frgn_pure_buy_quant), ","))
+            else:
+                transition.append(0)
+
+            # 기관 종가기준
+            if sum_organ_pure_buy_quant != 0:
+                transition.append(format(int(sum_organ_unit_price / sum_organ_pure_buy_quant), ","))
+            else:
+                transition.append(0)
+
+            # 개인 종가기준
+            if sum_indi_pure_buy_quant != 0:
+                transition.append(format(int(sum_indi_unit_price / sum_indi_pure_buy_quant), ","))
+                transition.append(format(int(sum_total_unit_price / sum_acc_quant), ","))
+                end_price_ratio = int((int(sum_indi_unit_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
+                end_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(end_price_ratio) + "%"
+                transition.append(end_price_ratio_str)
+            else:
+                transition.append(0)
+                transition.append(format(int(sum_total_unit_price / sum_acc_quant), ","))
+                transition.append(0)
+
+            # 외인 평균가기준
+            if sum_frgn_pure_buy_quant != 0:
+                transition.append(format(int(sum_frgn_unit_avg_price / sum_frgn_pure_buy_quant), ","))
+            else:
+                transition.append(0)
+
+            # 기관 평균가기준
+            if sum_organ_pure_buy_quant != 0:
+                transition.append(format(int(sum_organ_unit_avg_price / sum_organ_pure_buy_quant), ","))
+            else:
+                transition.append(0)
+
+            # 개인 평균가 기준
+            if sum_indi_pure_buy_quant != 0:
+                transition.append(format(int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant), ","))
+                transition.append(format(int(sum_total_unit_avg_price / sum_acc_quant), ","))
+                today_price_ratio = int((int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
+                today_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(today_price_ratio) + "%"
+                transition.append(today_price_ratio_str)
+            else:
+                transition.append(0)
+                transition.append(format(int(sum_total_unit_avg_price / sum_acc_quant), ","))
+                transition.append(0)
+
+            result_transition.append(transition)
+            transition = []  # list 초기화
+
     return_value = {}
 
     result = []
@@ -152,48 +219,46 @@ def getSise(item_code, start_date, end_date):
     result.append({'subject': '평균거래량', 'value': format(int((sum_acc_quant - int(max_info.get('max_tr_quant'))) / (real_cnt-1)), ","), 'pre_value': 0})
 
     if sum_frgn_pure_buy_quant != 0:
-        result.append({'subject': '외국인 평단(종가)', 'value': format(int(sum_frgn_unit_price/sum_frgn_pure_buy_quant),","), 'pre_value': 0})
+        result.append({'subject': '외인 평단(종가)', 'value': format(int(sum_frgn_unit_price/sum_frgn_pure_buy_quant),","), 'pre_value': 0})
     else:
-        result.append({'subject': '외국인 평단(종가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '외인 평단(종가)', 'value': 0, 'pre_value': 0})
 
     if sum_organ_pure_buy_quant != 0:
         result.append({'subject': '기관 평단(종가)', 'value': format(int(sum_organ_unit_price/sum_organ_pure_buy_quant),","), 'pre_value': 0})
     else:
         result.append({'subject': '기관 평단(종가)', 'value': 0, 'pre_value': 0})
 
-    result.append({'subject': '거래량 평단(종가)', 'value': format(int(sum_total_unit_price/sum_acc_quant),","), 'pre_value': 0})
-
     if sum_indi_pure_buy_quant != 0:
         result.append({'subject': '개인 평단(종가)', 'value': format(int(sum_indi_unit_price/sum_indi_pure_buy_quant),","), 'pre_value': 0})
-
+        result.append({'subject': '거래 평단(종가)', 'value': format(int(sum_total_unit_price / sum_acc_quant), ","), 'pre_value': 0})
         end_price_ratio = int((int(sum_indi_unit_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
         end_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(end_price_ratio) + "%"
         result.append({'subject': '비율(종가)', 'value': end_price_ratio_str, 'pre_value': ''})
     else:
         result.append({'subject': '개인 평단(종가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '거래 평단(종가)', 'value': format(int(sum_total_unit_price / sum_acc_quant), ","), 'pre_value': 0})
         result.append({'subject': '비율(종가)', 'value': 0, 'pre_value': 0})
 
     if sum_frgn_pure_buy_quant != 0:
-        result.append({'subject': '외국인 평단(평균가)', 'value': format(int(sum_frgn_unit_avg_price / sum_frgn_pure_buy_quant), ","),'pre_value': 0})
+        result.append({'subject': '외인 평단(평균)', 'value': format(int(sum_frgn_unit_avg_price / sum_frgn_pure_buy_quant), ","),'pre_value': 0})
     else:
-        result.append({'subject': '외국인 평단(평균가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '외인 평단(평균)', 'value': 0, 'pre_value': 0})
 
     if sum_organ_pure_buy_quant != 0:
-        result.append({'subject': '기관 평단(평균가)', 'value': format(int(sum_organ_unit_avg_price / sum_organ_pure_buy_quant), ","),'pre_value': 0})
+        result.append({'subject': '기관 평단(평균)', 'value': format(int(sum_organ_unit_avg_price / sum_organ_pure_buy_quant), ","),'pre_value': 0})
     else:
-        result.append({'subject': '기관 평단(평균가)', 'value': 0, 'pre_value': 0})
-
-    result.append({'subject': '거래량 평단(평균가)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","), 'pre_value': 0})
+        result.append({'subject': '기관 평단(평균)', 'value': 0, 'pre_value': 0})
 
     if sum_indi_pure_buy_quant != 0:
-        result.append({'subject': '개인 평단(평균가)', 'value': format(int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant), ","),'pre_value': 0})
-
+        result.append({'subject': '개인 평단(평균)', 'value': format(int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant), ","),'pre_value': 0})
+        result.append({'subject': '거래 평단(평균)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","),'pre_value': 0})
         today_price_ratio = int((int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
         today_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(today_price_ratio)+"%"
-        result.append({'subject': '비율(평균가)', 'value': today_price_ratio_str, 'pre_value': ''})
+        result.append({'subject': '비율(평균)', 'value': today_price_ratio_str, 'pre_value': ''})
     else:
-        result.append({'subject': '개인 평단(평균가)', 'value': 0, 'pre_value': 0})
-        result.append({'subject': '비율(평균가)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '개인 평단(평균)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '거래 평단(평균)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","),'pre_value': 0})
+        result.append({'subject': '비율(평균)', 'value': 0, 'pre_value': 0})
 
     return_value.setdefault('result', result)
 
@@ -211,6 +276,8 @@ def getSise(item_code, start_date, end_date):
     company_detail_info['tot_stock_cnt'] = format(company_detail_info.get('tot_stock_cnt'), ",")
     company_detail_info['cir_stock_cnt'] = format(company_detail_info.get('cir_stock_cnt'), ",")
     return_value.setdefault('company_detail_info', company_detail_info)
+
+    return_value.setdefault('transition', result_transition)
 
     return return_value
 
