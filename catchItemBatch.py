@@ -1,3 +1,7 @@
+# ------------------- history ----------------------
+# 20/05/28   getSise 에서 종가기준 정보를 삭제함
+# --------------------------------------------------
+
 import database
 import pandas as pd
 import getSise
@@ -83,7 +87,7 @@ for item in res['result']['itemList']:
     i = 0
     result_list = []
     for data in res['result']:
-        if i == 8 or i == 13:
+        if i == 8:
             result_list.append(int(data['value'].split('/')[0].split(':')[1].replace(",","")))
         else:
             #print(data['value'])
@@ -101,15 +105,15 @@ for item in res['result']['itemList']:
                         , result_list[1]  # ins_tr_cnt
                         , result_list[2] # ind_tr_cnt
                         , result_list[3] # avg_tr_cnt
-                        , result_list[4] # for_avg_fin_amt
-                        , result_list[5]  # ins_avg_fin_amt
-                        , result_list[6] # ind_avg_fin_amt
-                        , result_list[7] # tr_avg_fin_amt
+                        , 0 #result_list[4] # for_avg_fin_amt
+                        , 0 #result_list[5]  # ins_avg_fin_amt
+                        , 0 #result_list[6] # ind_avg_fin_amt
+                        , 0 #result_list[7] # tr_avg_fin_amt
                         , result_list[8] # fin_amt
-                        , result_list[9] # for_avg_avg_amt
-                        , result_list[10] # ins_avg_avg_amt
-                        , result_list[11] # ind_avg_avg_amt
-                        , result_list[12]  # tr_avg_avg_amt
+                        , result_list[4] # for_avg_avg_amt
+                        , result_list[5] # ins_avg_avg_amt
+                        , result_list[6] # ind_avg_avg_amt
+                        , result_list[7]  # tr_avg_avg_amt
                         , int(max_info['max_tr_quant'].replace(",", "")) # max_tr_qunat
                         , str(max_info['max_tr_date'].replace("-","")) # max_tr_date
                         , float(max_info['max_tr_ratio']) # max_tr_ratio
