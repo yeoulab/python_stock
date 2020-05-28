@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from flask import jsonify
 from flask_cors import CORS, cross_origin
 import getSise, getJongmokInfo, getDailyInfoTotal, getDiary
+import statistic.getStats as stats
 import logging
 
 
@@ -56,6 +57,7 @@ def getGlobalIndex():
 
 @app.route("/search/diary")
 def searchDiary():
+    print("searchDiary Start")
     dic_res = getDiary.getDiaryDb()
     response = jsonify(dic_res)
     return response
@@ -78,15 +80,11 @@ def insertDiary():
     response = {}
     return response
 
-@app.route("/news/naver")
-def getNewsFromNaver():
-    res = requests.get('https://news.naver.com/', verify='C:/SDS.crt')
-    soup = BeautifulSoup(res.content, 'html.parser')
-
-    link_title = soup.find_all('a')
-    #return link_title
-    for num in range(len(link_title)):
-        print(link_title[num].get_text().strip())
+@app.route("/search/stats", methods=['GET'])
+def searchStats():
+    dic_res = stats.getStatsDb()
+    response = jsonify(dic_res)
+    return response
 
 @app.after_request
 def add_headers(response):

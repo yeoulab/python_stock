@@ -32,8 +32,13 @@ class Database():
         row = self.cursor.fetchone()
         return row
 
-    def execute_all(self, query):
-        self.cursor.execute(query)
+    def execute_all(self, query, data):
+        print("data : {}".format(data))
+        try:
+            self.cursor.execute(query, data)
+        except Exception as ex:
+            print("에러 발생 : {}".format(ex))
+
         row = self.cursor.fetchall()
         return row
 
