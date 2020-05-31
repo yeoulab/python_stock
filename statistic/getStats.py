@@ -36,6 +36,7 @@ def getStatsDb():
     "AND max_cir_ratio > %s " \
     "AND tot_cir_ratio > %s " \
     "AND ind_avg_avg_amt > fin_amt " \
+    "AND ind_tr_cnt > 0 " \
     "ORDER BY (ind_avg_avg_amt / fin_amt) DESC"
 
     result = db_class.execute_all(sql, data)
