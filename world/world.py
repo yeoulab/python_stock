@@ -2,7 +2,11 @@
 
 import requests
 from bs4 import BeautifulSoup
+from flask import Blueprint, jsonify
 
+world_bp = Blueprint('world_bp', __name__)
+
+@world_bp.route("/index", methods=['GET'])
 def getGlobalIndex():
     return_result = []
 
@@ -71,4 +75,4 @@ def getGlobalIndex():
                               'float_ratio_lowest': format(float_ratio_lowest, ",")
                               })
     #print(return_result)
-    return return_result
+    return jsonify(return_result)

@@ -2,11 +2,19 @@
 # 2020.05.29  신규 생성
 # 주의사항 : pymysql 을 이용하여 변수 입력하는 부분 잘 볼 것
 import database
-from flask import request
+from flask import request, Blueprint, jsonify
 
+stats_bp = Blueprint('stats_bp', __name__)
+
+@stats_bp.route("/stats", methods=['GET'])
 def getStatsDb():
-    db_class = database.Database()
+    print("Start getStatsDb")
+    try:
+        db_class = database.Database()
+    except Exception as ex:
+        print("에러 발생 : {}".format(ex))
 
+    print("Start getStatsDb222")
     # jongmok_code
     # tr_date
     # ind_tr_cnt
@@ -42,4 +50,4 @@ def getStatsDb():
     result = db_class.execute_all(sql, data)
     print(result)
 
-    return result
+    return jsonify(result)

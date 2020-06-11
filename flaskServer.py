@@ -5,15 +5,25 @@ import requests
 from bs4 import BeautifulSoup
 from flask import jsonify
 from flask_cors import CORS, cross_origin
-import getSise, getJongmokInfo, getDailyInfoTotal, getDiary
-import statistic.getStats as stats
+import getSise
+import statistic.stats as stats
 import logging
-from auth.controlUser import control_user_bp
 import auth
+
+from auth.user import control_user_bp
+from diary.diary import diary_bp
+from world.world import world_bp
+from item.item import item_bp
+from statistic.stats import stats_bp
+
 
 logging.basicConfig(filename="project.log", level=logging.INFO)
 app = Flask(__name__)
-app.register_blueprint(control_user_bp)
+app.register_blueprint(control_user_bp) # user 권한/로그인/로그아웃/jwt
+app.register_blueprint(diary_bp) # Diary 관리
+app.register_blueprint(world_bp, url_prefix="/global") # Global Index, 금, 달러, 유가 등등 추가
+app.register_blueprint(item_bp, url_prefix="/item") # 종목코드, 종목정보, 종목명 등
+app.register_blueprint(stats_bp)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -32,60 +42,6 @@ def getUnitPrice():
     print("start_date : {}".format(start_date))
     print("end_date : {}".format(end_date))
     dic_res = getSise.getSise(item_code, start_date, end_date)
-    response = jsonify(dic_res)
-    return response
-
-@app.route("/codeInfo")
-def getCodeInfo():
-    print(request.args)
-    item_code = request.args.get("item_code")
-    dic_res = getJongmokInfo.getCodeInfo(item_code)
-    response = jsonify(dic_res)
-    return response
-
-@app.route("/code")
-def getCodeName():
-    item_name = request.args.get("item_name")
-    dic_res = getJongmokInfo.getCodeName(item_name)
-    response = jsonify(dic_res)
-
-    return response
-
-@app.route("/globalIndex")
-def getGlobalIndex():
-    dic_res = getDailyInfoTotal.getGlobalIndex()
-    response = jsonify(dic_res)
-
-    return response
-
-@app.route("/search/diary")
-def searchDiary():
-    print("searchDiary Start")
-    dic_res = getDiary.getDiaryDb()
-    response = jsonify(dic_res)
-    return response
-
-@app.route("/update/diary", methods=['POST'])
-@cross_origin(origin='*')
-def updateDiary():
-    print("updateDiary Start")
-    data = request.get_json()
-    getDiary.updateDiaryDb(data)
-    response = {}
-    return response
-
-@app.route("/insert/diary", methods=['POST'])
-@cross_origin(origin='*')
-def insertDiary():
-    print("insertDiary Start")
-    data = request.get_json()
-    getDiary.insertDiaryDb(data)
-    response = {}
-    return response
-
-@app.route("/search/stats", methods=['GET'])
-def searchStats():
-    dic_res = stats.getStatsDb()
     response = jsonify(dic_res)
     return response
 

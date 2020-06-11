@@ -6,6 +6,7 @@ class Database():
         mysql_addr = os.getenv('MYSQL_PORT_33060_TCP_ADDR')
         if mysql_addr == "":
             mysql_addr = 'localhost'
+        mysql_addr = '34.64.103.91'
 
         mysql_config = {
             'host': mysql_addr,
