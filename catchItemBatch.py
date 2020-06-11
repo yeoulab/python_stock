@@ -1,7 +1,6 @@
 # ------------------- history ----------------------
 # 20/05/28   getSise 에서 종가기준 정보를 삭제함
 # --------------------------------------------------
-
 import database
 import pandas as pd
 import getSise
@@ -11,6 +10,19 @@ import logging
 import sys
 import requests
 import common.const as const
+from bs4 import BeautifulSoup
+
+def checkPer(code):
+    base_url = 'https://m.stock.naver.com/api/html/item/getOverallInfo.nhn?code=' + code
+    res = requests.get(base_url)
+    soup = BeautifulSoup(res.content, 'html.parser')
+    result = soup.find_all("li")
+    per_data = result[10].find_all("span")
+
+    if str(per_data[0].text) == 'N/A':
+        return False
+    else:
+        return True
 
 # 파라미터 입력을 받지 않았으면, 프로그램 종료
 if len(sys.argv) == 1:
@@ -26,7 +38,14 @@ logging.basicConfig(filename=file_name, level=logging.INFO)
 # sosok = 0(코스피), 17Page 까지있음
 # sosok = 1(코스닥), 15Page 까지 있음
 url = "https://m.stock.naver.com/api/json/sise/siseListJson.nhn"
-params = {"menu": "market_sum", "sosok": sys.argv[1], "pageSize": 100, "page": sys.argv[2]}
+params = {}
+
+# 2020/06/10 평일 하락종목들 체크
+if sys.argv[3] is None:
+    params = {"menu": "market_sum", "sosok": sys.argv[1], "pageSize": 100, "page": sys.argv[2]}
+else:
+    params = {"menu": "fall", "sosok": sys.argv[1], "pageSize": 100}
+
 response = requests.get(url, params=params)
 res = response.json()
 # res['result']['itemList'] -> ItemList 의 'cd' 값이 code, 'nm' 값이 종목명
@@ -54,6 +73,14 @@ for hday in hdays:
 # 거래량 구하기
 url = 'https://m.stock.naver.com/api/item/getPriceDayList.nhn'
 for item in res['result']['itemList']:
+
+    perPlusYn = checkPer(item['cd'])
+
+    # 2020/06/10 PER + check
+    if not perPlusYn:
+        time.sleep(1)
+        continue
+
     # 직전 6개월 ~ 현재 까지의 가격 구하기
     params = {'code': item['cd'], 'pageSize': len(mdays)}
     response = requests.get(url, params=params)
@@ -129,3 +156,4 @@ for item in res['result']['itemList']:
     db_class.execute(insert_sql)
     db_class.commit()
     time.sleep(3)
+

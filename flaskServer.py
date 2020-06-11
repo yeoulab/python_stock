@@ -8,14 +8,17 @@ from flask_cors import CORS, cross_origin
 import getSise, getJongmokInfo, getDailyInfoTotal, getDiary
 import statistic.getStats as stats
 import logging
-
+from auth.controlUser import control_user_bp
+import auth
 
 logging.basicConfig(filename="project.log", level=logging.INFO)
 app = Flask(__name__)
+app.register_blueprint(control_user_bp)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/")
+@auth.login_required
 def test():
     return "test"
 
