@@ -1,16 +1,18 @@
 # ------------------- history ----------------------
 # 20/05/28   getSise 에서 종가기준 정보를 삭제함
 # --------------------------------------------------
-import database
 import pandas as pd
-import getSise
 import time
 from datetime import datetime, timedelta
 import logging
 import sys
 import requests
-import common.const as const
 from bs4 import BeautifulSoup
+import os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+import common.const as const
+import database
+import getSise
 
 def checkPer(code):
     base_url = 'https://m.stock.naver.com/api/html/item/getOverallInfo.nhn?code=' + code

@@ -70,3 +70,31 @@ create table `tb_l_jongmok_stat` (
   `cir_stock_cnt` bigint,
   primary key(jongmok_code, tr_date)
   )  default CHARSET utf8 collate utf8_unicode_ci;
+CREATE TABLE `tb_h_dowjonse` (
+  `tr_date` date not null,
+  `dowjonse` float(10,2),
+  primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;
+CREATE TABLE `tb_h_nasdaq` (
+  `tr_date` date not null,
+  `nasdaq` float(10,2),
+  primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;  
+CREATE TABLE `tb_h_dollar` (
+  `tr_date` date not null,
+  `dollar` float(10,2),
+  primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;  
+CREATE TABLE `tb_h_gold` (
+  `tr_date` date not null,
+  `gold` float(10,2),
+  primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;
+CREATE TABLE `tb_h_oil` (
+  `tr_date` date not null,
+  `oil` float(10,2),
+  primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;
+CREATE TABLE `tb_h_kospi` (
+  `tr_date` date not null,
+  `kospi` float(10,2),
+  primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;
+CREATE TABLE `tb_h_kosdaq` (
+  `tr_date` date not null,
+  `kosdaq` float(10,2),
+  primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;
