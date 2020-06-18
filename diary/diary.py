@@ -1,3 +1,9 @@
+# Diary 에 저장하는 모듈
+# status 관리 필요
+# 1 : 등록
+# 2 : 매수
+# 3 : 매도
+# 4 : 삭제
 import database
 from flask import request, Blueprint, jsonify
 
@@ -16,14 +22,14 @@ def process_diary():
 
     if request.method == 'GET':
         sql = "SELECT jongmok_code, DATE_FORMAT(start_date,'%Y-%m-%d') AS start_date, " \
-              "company_name, buy_reason, sell_reason, suc_reason, fail_reason FROM tb_l_diary"
+              "company_name, buy_reason, sell_reason, suc_reason, fail_reason, stats FROM tb_l_diary"
         result = db_class.execute_all(sql, None)
 
     elif request.method == 'POST':
         str_space = ""
-        sql = "INSERT INTO tb_l_diary VALUES('%s','%s','%s','%s','%s','%s','%s')" \
+        sql = "INSERT INTO tb_l_diary VALUES('%s','%s','%s','%s','%s','%s','%s' ,'%s')" \
               % (input_body.get('jongmok_code'), input_body.get('start_date'), input_body.get('company_name'), input_body.get('buy_reason'),
-                 str_space,str_space,str_space)
+                 str_space,str_space,str_space,'1')
         db_class.execute(sql)
         db_class.commit()
 
@@ -32,6 +38,14 @@ def process_diary():
         start_date = input_body.get('start_date').replace("-","")
         sql = "UPDATE tb_l_diary SET buy_reason='%s', sell_reason='%s', suc_reason='%s', fail_reason='%s' " \
               "WHERE jongmok_code='%s' AND start_date='%s'" % (input_body.get('buy_reason'), input_body.get('sell_reason'), input_body.get('suc_reason'), input_body.get('fail_reason'), input_body.get('jongmok_code'), start_date)
+        db_class.execute(sql)
+        db_class.commit()
+
+    elif request.method == 'DELETE':
+        start_date = input_body.get('start_date').replace("-", "")
+        sql = "UPDATE tb_l_diary SET stats='%s' " \
+              "WHERE jongmok_code='%s' AND start_date='%s'" % (
+              input_body.get('stats'), input_body.get('jongmok_code'), start_date)
         db_class.execute(sql)
         db_class.commit()
 

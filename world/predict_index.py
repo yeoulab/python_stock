@@ -72,4 +72,4 @@ def getDowJonse():
     db_class.commit()
 
 #getDowJonse()
-getDollar()
+#getDollar()
