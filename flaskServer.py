@@ -15,6 +15,8 @@ from diary.diary import diary_bp
 from world.world import world_bp
 from item.item import item_bp
 from statistic.stats import stats_bp
+from theme.theme import theme_bp
+from theme.theme_item import theme_item_bp
 
 
 logging.basicConfig(filename="project.log", level=logging.INFO)
@@ -24,6 +26,8 @@ app.register_blueprint(diary_bp) # Diary 관리
 app.register_blueprint(world_bp, url_prefix="/global") # Global Index, 금, 달러, 유가 등등 추가
 app.register_blueprint(item_bp, url_prefix="/item") # 종목코드, 종목정보, 종목명 등
 app.register_blueprint(stats_bp)
+app.register_blueprint(theme_bp)
+app.register_blueprint(theme_item_bp)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 

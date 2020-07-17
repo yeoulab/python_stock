@@ -81,7 +81,7 @@ def getSise(item_code, start_date, end_date):
                 "max_cir_ratio": 0.0,
                 "tot_cir_ratio": 0.0}
 
-    # end date 를 고려한 거래량
+    # end date 를 고려한 거래량(end date 는 사실상 사용을 안함)
     for row in res['result']:
         biz_date = row['bizdate']
         biz_date = pd.to_datetime(biz_date)
@@ -166,31 +166,7 @@ def getSise(item_code, start_date, end_date):
             transition.append(format(sum_real_frgn_pure_buy_quant,","))  # 외국인 거래량
             transition.append(format(sum_real_organ_pure_buy_quant, ","))  # 기관 거래량
             transition.append(format(sum_real_indi_pure_buy_quant, ","))  # 개인 거래량
-            transition.append(format(int((sum_acc_quant - int(max_info.get('max_tr_quant'))) / (real_cnt-1)), ","))  # 평균 거래량
-
-            # # 외국인 종가기준
-            # if sum_frgn_pure_buy_quant != 0:
-            #     transition.append(format(int(sum_frgn_unit_price / sum_frgn_pure_buy_quant), ","))
-            # else:
-            #     transition.append(0)
-            #
-            # # 기관 종가기준
-            # if sum_organ_pure_buy_quant != 0:
-            #     transition.append(format(int(sum_organ_unit_price / sum_organ_pure_buy_quant), ","))
-            # else:
-            #     transition.append(0)
-            #
-            # # 개인 종가기준
-            # if sum_indi_pure_buy_quant != 0:
-            #     transition.append(format(int(sum_indi_unit_price / sum_indi_pure_buy_quant), ","))
-            #     transition.append(format(int(sum_total_unit_price / sum_acc_quant_for_transition), ","))
-            #     end_price_ratio = int((int(sum_indi_unit_price / sum_indi_pure_buy_quant) - today_price) / today_price * 100)
-            #     end_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(end_price_ratio) + "%"
-            #     transition.append(end_price_ratio_str)
-            # else:
-            #     transition.append(0)
-            #     transition.append(format(int(sum_total_unit_price / sum_acc_quant_for_transition), ","))
-            #     transition.append(0)
+            transition.append(format(int(sum_acc_quant_for_transition / biz_date_cnt), ","))  # 평균 거래량
 
             # 외인 평균가기준
             if sum_frgn_pure_buy_quant != 0:

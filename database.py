@@ -6,7 +6,6 @@ class Database():
         mysql_addr = os.getenv('MYSQL_PORT_33060_TCP_ADDR')
         if mysql_addr == "":
             mysql_addr = 'localhost'
-        mysql_addr = '34.64.103.91'
 
         mysql_config = {
             'host': mysql_addr,
@@ -26,7 +25,10 @@ class Database():
         self.cursor = self.db.cursor(pymysql.cursors.DictCursor)
 
     def execute(self, query):
-        self.cursor.execute(query)
+        try:
+            self.cursor.execute(query)
+        except Exception as ex:
+            print("에러 발생 : {}".format(ex))
 
     def execute_one(self, query):
         self.cursor.execute(query)

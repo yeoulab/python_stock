@@ -1,5 +1,6 @@
 # ------------------- history ----------------------
 # 20/05/28   getSise 에서 종가기준 정보를 삭제함
+# 20/07/18   maxDate 를 start_date 로 변경
 # --------------------------------------------------
 import pandas as pd
 import time
@@ -75,13 +76,17 @@ for hday in hdays:
 # 거래량 구하기
 url = 'https://m.stock.naver.com/api/item/getPriceDayList.nhn'
 for item in res['result']['itemList']:
-
+    # PER 이 '+' 인 회사만 가져온다.
     perPlusYn = checkPer(item['cd'])
 
     # 2020/06/10 PER + check
     if not perPlusYn:
         time.sleep(1)
         continue
+
+    # 총거래량 / 유통주식수가 400% 일 때의 시작일자를 구하기 위해 한번 더 메소드를 호출한다.
+    company_detail_info = getSise.getCompanyDetailInfo(item['cd'])
+    cir_stock_cnt = int(company_detail_info.get("cir_stock_cnt")) # 유통 거래량
 
     # 직전 6개월 ~ 현재 까지의 가격 구하기
     params = {'code': item['cd'], 'pageSize': len(mdays)}
@@ -91,25 +96,20 @@ for item in res['result']['itemList']:
     # 최대 거래량 발생한 일자 구하기
     max_tr_dt = ""
     max_tr_cnt = int(0)
+    tot_tr_cnt = int(0)
     for data in res['result']['list']:
         biz_date = data['dt']
         biz_date = pd.to_datetime(biz_date)
-        #print("biz_date :{}".format(biz_date))
-        if now_before_one_month < biz_date:
-            continue
 
-        #print("거래량 : {}".format(data['aq']))
+        # 매일 거래량을 더해서, 유통주식수의 4배가 될때 까지 구한다.
+        tot_tr_cnt = tot_tr_cnt + int(data['aq'])
 
-        if int(data['aq']) > max_tr_cnt:
-            max_tr_cnt = int(data['aq'])
+        if tot_tr_cnt > cir_stock_cnt * 4:
             max_tr_dt = biz_date
 
-    #print("item : {}".format(item['cd']))
-    #print("max_tr_cnt :{}".format(max_tr_cnt))
-    #print("max_tr_dt : {}".format(max_tr_dt))
-    print("code : {}".format(item['cd']))
+    # 최근 6개월 이내에 400% 가 안됐다면, 6개월 전 날자로 세팅
     if max_tr_dt == "":
-        continue
+        max_tr_dt = now_before_six_month
 
     res = getSise.getSise(item['cd'], max_tr_dt, tday)
 
@@ -119,7 +119,6 @@ for item in res['result']['itemList']:
         if i == 8:
             result_list.append(int(data['value'].split('/')[0].split(':')[1].replace(",","")))
         else:
-            #print(data['value'])
             result_list.append(int(data['value'].replace(",","")))
         i = i + 1
 

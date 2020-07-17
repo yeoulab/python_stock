@@ -1,3 +1,6 @@
+tb_l_jongmok_info 사용안함
+tb_l_jongmok_trend  사용안함
+
 CREATE DATABASE stock DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 create table `tb_m_jongmok` (
  `company_name` char(50) not null,
@@ -98,3 +101,11 @@ CREATE TABLE `tb_h_kosdaq` (
   `tr_date` date not null,
   `kosdaq` float(10,2),
   primary key (`tr_date`)) default CHARSET utf8 collate utf8_unicode_ci;
+CREATE TABLE `tb_m_theme` (
+  `id` int auto_increment primary key,
+  `theme_name` varchar(1000)) default CHARSET utf8 collate utf8_unicode_ci;
+CREATE TABLE `tb_l_theme_item` (
+  `theme_id` int,
+  `item_code` varchar(8),
+  PRIMARY KEY(theme_id, item_code)) default CHARSET utf8 collate utf8_unicode_ci;
+;
