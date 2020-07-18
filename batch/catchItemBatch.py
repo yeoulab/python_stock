@@ -104,8 +104,11 @@ for item in res['result']['itemList']:
         # 매일 거래량을 더해서, 유통주식수의 4배가 될때 까지 구한다.
         tot_tr_cnt = tot_tr_cnt + int(data['aq'])
 
-        if tot_tr_cnt > cir_stock_cnt * 4:
-            max_tr_dt = biz_date
+        # 400% ~ 500% 사이에 거래량이 가장 많은 날을 기준을 시작점으로 잡는다.
+        if cir_stock_cnt * 4 < tot_tr_cnt < cir_stock_cnt * 5:
+            if max_tr_cnt < int(data['aq']):
+                max_tr_cnt = int(data['aq'])
+                max_tr_dt = biz_date
 
     # 최근 6개월 이내에 400% 가 안됐다면, 6개월 전 날자로 세팅
     if max_tr_dt == "":
