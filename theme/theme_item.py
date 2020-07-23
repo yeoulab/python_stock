@@ -20,6 +20,7 @@ def process_theme_item():
               "FROM tb_l_theme_item as t, tb_m_jongmok as j " \
               "WHERE t.theme_id = %s " \
               "AND t.item_code = j.jongmok_code" % (request.args.get('theme_id'))
+        print("result : {}".format(result))
         result = db_class.execute_all(sql, None)
 
     elif request.method == 'POST':

@@ -110,6 +110,13 @@ for item in res['result']['itemList']:
                 max_tr_cnt = int(data['aq'])
                 max_tr_dt = biz_date
 
+        if tot_tr_cnt > cir_stock_cnt * 5:
+            if max_tr_dt == "":
+                max_tr_dt = biz_date
+                break
+            else:
+                break
+
     # 최근 6개월 이내에 400% 가 안됐다면, 6개월 전 날자로 세팅
     if max_tr_dt == "":
         max_tr_dt = now_before_six_month
@@ -122,7 +129,11 @@ for item in res['result']['itemList']:
         if i == 8:
             result_list.append(int(data['value'].split('/')[0].split(':')[1].replace(",","")))
         else:
-            result_list.append(int(data['value'].replace(",","")))
+            try:
+                result_list.append(int(data['value'].replace(",","")))
+            except:
+                result_list.append(int(data['value']))
+
         i = i + 1
 
     max_info = res['max_info']

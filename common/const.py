@@ -1,4 +1,6 @@
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
 # 2016 ~ 2020년도의 휴장일
 df = pd.DataFrame({'hdays': ['2020-01-01', '2020-01-24', '2020-01-27', '2020-04-15',
@@ -16,3 +18,16 @@ df = pd.DataFrame({'hdays': ['2020-01-01', '2020-01-24', '2020-01-27', '2020-04-
                              '2016-03-01', '2016-04-13', '2016-05-05', '2016-05-06', '2016-06-06', '2016-08-15',
                              '2016-09-14', '2016-09-15', '2016-09-16', '2016-10-03', '2016-12-30']})
 hdays = pd.to_datetime(df['hdays'])
+
+
+def check_per(code):
+    base_url = 'https://m.stock.naver.com/api/html/item/getOverallInfo.nhn?code=' + code
+    res = requests.get(base_url)
+    soup = BeautifulSoup(res.content, 'html.parser')
+    result = soup.find_all("li")
+    per_data = result[10].find_all("span")
+
+    if str(per_data[0].text) == 'N/A':
+        return False
+    else:
+        return True
