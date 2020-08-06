@@ -30,10 +30,10 @@ def getStatsDb():
     max_cir_ratio = float(request.args.get('max_cir_ratio'))
     tot_cir_ratio = float(request.args.get('tot_cir_ratio'))
 
-    print("jongmok_code1 : {}".format(jongmok_code))
-    print("tr_date1 : {}".format(tr_date))
-    print("max_cir_ratio1 : {}".format(max_cir_ratio))
-    print("tot_cir_ratio1 : {}".format(tot_cir_ratio))
+    #print("jongmok_code1 : {}".format(jongmok_code))
+    #print("tr_date1 : {}".format(tr_date))
+    #print("max_cir_ratio1 : {}".format(max_cir_ratio))
+    #print("tot_cir_ratio1 : {}".format(tot_cir_ratio))
     data = tr_date, jongmok_code, max_cir_ratio, tot_cir_ratio
 
     sql = "SELECT jongmok_code, company_name, DATE_FORMAT(start_date,'%%Y-%%m-%%d') AS start_date, " \
@@ -48,6 +48,6 @@ def getStatsDb():
     "ORDER BY (ind_avg_avg_amt / fin_amt) DESC"
 
     result = db_class.execute_all(sql, data)
-    print(result)
+    #print(result)
 
     return jsonify(result)

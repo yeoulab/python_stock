@@ -42,10 +42,12 @@ def process_diary():
         db_class.commit()
 
     elif request.method == 'DELETE':
-        start_date = input_body.get('start_date').replace("-", "")
-        sql = "UPDATE tb_l_diary SET stats='%s' " \
-              "WHERE jongmok_code='%s' AND start_date='%s'" % (
-              input_body.get('stats'), input_body.get('jongmok_code'), start_date)
+        print(input_body)
+        item_code = request.args.get('item_code')
+        start_date = request.args.get('start_date').replace("-","")
+        # start_date = input_body.get('start_date').replace("-", "")
+        sql = "DELETE FROM tb_l_diary " \
+              "WHERE jongmok_code='%s' AND start_date='%s'" % (item_code, start_date)
         db_class.execute(sql)
         db_class.commit()
 
