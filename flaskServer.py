@@ -17,6 +17,7 @@ from item.item import item_bp
 from statistic.stats import stats_bp
 from theme.theme import theme_bp
 from theme.theme_item import theme_item_bp
+from theme.theme_calc import theme_calc_bp
 
 
 logging.basicConfig(filename="project.log", level=logging.INFO)
@@ -28,6 +29,7 @@ app.register_blueprint(item_bp, url_prefix="/item") # 종목코드, 종목정보
 app.register_blueprint(stats_bp)
 app.register_blueprint(theme_bp)
 app.register_blueprint(theme_item_bp)
+app.register_blueprint(theme_calc_bp)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 

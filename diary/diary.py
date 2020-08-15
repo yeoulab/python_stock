@@ -26,10 +26,28 @@ def process_diary():
         result = db_class.execute_all(sql, None)
 
     elif request.method == 'POST':
-        str_space = ""
+        search_sql = "SELECT company_name, buy_reason, sell_reason, suc_reason, fail_reason, stats FROM tb_l_diary " \
+                     "WHERE jongmok_code='%s'" % (input_body.get('jongmok_code'))
+        result = db_class.execute_all(search_sql, None)
+
+        bf_buy_reason = ''
+        bf_sell_reason = ''
+        bf_suc_reason = ''
+        bf_fail_reason = ''
+
+        if result != "":
+            bf_buy_reason = result[0]['buy_reason']
+            bf_sell_reason = result[0]['sell_reason']
+            bf_suc_reason = result[0]['suc_reason']
+            bf_fail_reason = result[0]['fail_reason']
+
+            del_sql = "DELETE FROM tb_l_diary WHERE jongmok_code='%s'" % (input_body.get('jongmok_code'))
+            db_class.execute(del_sql)
+            print("삭제 성공")
+
         sql = "INSERT INTO tb_l_diary VALUES('%s','%s','%s','%s','%s','%s','%s' ,'%s')" \
-              % (input_body.get('jongmok_code'), input_body.get('start_date'), input_body.get('company_name'), input_body.get('buy_reason'),
-                 str_space,str_space,str_space,'1')
+              % (input_body.get('jongmok_code'), input_body.get('start_date'), input_body.get('company_name'), bf_buy_reason,
+                 bf_sell_reason,bf_suc_reason,bf_fail_reason,'1')
         db_class.execute(sql)
         db_class.commit()
 

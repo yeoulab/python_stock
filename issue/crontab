@@ -1,0 +1,59 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+# 매일 아침 9시, clear data
+0 0 * * * root /home/yeoulab_ml/deleteData_exec.sh
+
+# 매주 일요일 14시 종목 업데이트
+0 5 * * 7 root /home/yeoulab_ml/getJongmok_exec.sh
+
+# 매일 월 -금  17시부터
+0 6 * * 1-5 root /home/yeoulab_ml/python_exec.sh 0 1 1
+10 6 * * 1-5 root /home/yeoulab_ml/python_exec.sh 1 1 1
+
+# 매주 토요일 14시 부터 시작(코스피)
+0 5 * * 6 root /home/yeoulab_ml/python_exec.sh 0 1
+10 5 * * 6 root /home/yeoulab_ml/python_exec.sh 0 2
+20 5 * * 6 root /home/yeoulab_ml/python_exec.sh 0 3
+30 5 * * 6 root /home/yeoulab_ml/python_exec.sh 0 4
+40 5 * * 6 root /home/yeoulab_ml/python_exec.sh 0 5
+50 5 * * 6 root /home/yeoulab_ml/python_exec.sh 0 6
+0 6 * * 6 root /home/yeoulab_ml/python_exec.sh 0 7
+10 6 * * 6 root /home/yeoulab_ml/python_exec.sh 0 8
+20 6 * * 6 root /home/yeoulab_ml/python_exec.sh 0 9
+30 6 * * 6 root /home/yeoulab_ml/python_exec.sh 0 10
+40 6 * * 6 root /home/yeoulab_ml/python_exec.sh 0 11
+50 6 * * 6 root /home/yeoulab_ml/python_exec.sh 0 12
+0 7 * * 6 root /home/yeoulab_ml/python_exec.sh 0 13
+10 7 * * 6 root /home/yeoulab_ml/python_exec.sh 0 14
+20 7 * * 6 root /home/yeoulab_ml/python_exec.sh 0 15
+30 7 * * 6 root /home/yeoulab_ml/python_exec.sh 0 16
+40 7 * * 6 root /home/yeoulab_ml/python_exec.sh 0 17
+
+# 매주 토요일 오전 5시 부터 시작(코스닥)
+50 7 * * 6 root /home/yeoulab_ml/python_exec.sh 1 1
+0 8 * * 6 root /home/yeoulab_ml/python_exec.sh 1 2
+10 8 * * 6 root /home/yeoulab_ml/python_exec.sh 1 3
+20 8 * * 6 root /home/yeoulab_ml/python_exec.sh 1 4
+30 8 * * 6 root /home/yeoulab_ml/python_exec.sh 1 5
+40 8 * * 6 root /home/yeoulab_ml/python_exec.sh 1 6
+50 8 * * 6 root /home/yeoulab_ml/python_exec.sh 1 7
+0 9 * * 6 root /home/yeoulab_ml/python_exec.sh 1 8
+10 9 * * 6 root /home/yeoulab_ml/python_exec.sh 1 9
+20 9 * * 6 root /home/yeoulab_ml/python_exec.sh 1 10
+30 9 * * 6 root /home/yeoulab_ml/python_exec.sh 1 11
+40 9 * * 6 root /home/yeoulab_ml/python_exec.sh 1 12
+50 9 * * 6 root /home/yeoulab_ml/python_exec.sh 1 13
+0 10 * * 6 root /home/yeoulab_ml/python_exec.sh 1 14
+10 10 * * 6 root /home/yeoulab_ml/python_exec.sh 1 15

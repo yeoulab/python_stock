@@ -35,6 +35,11 @@ def process_theme_item():
         sql = "DELETE FROM tb_l_theme_item WHERE theme_id = %s AND item_code = '%s'" \
               % (request.args.get('theme_id'), request.args.get('item_code'))
         db_class.execute(sql)
+
+        # theme item 삭제 시, 기존에 저장돼 있던 계산내역도 같이 삭제한다.
+        calc_del_sql = "DELETE FROM tb_l_theme_jongmok_stat WHERE jongmok_code = '%s'" \
+              % (request.args.get('item_code'))
+        db_class.execute(calc_del_sql)
         db_class.commit()
 
     return jsonify(result)
