@@ -35,7 +35,7 @@ def process_diary():
         bf_suc_reason = ''
         bf_fail_reason = ''
 
-        if result != "":
+        if result:
             bf_buy_reason = result[0]['buy_reason']
             bf_sell_reason = result[0]['sell_reason']
             bf_suc_reason = result[0]['suc_reason']
