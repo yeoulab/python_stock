@@ -227,12 +227,12 @@ def getSise(item_code, start_date, end_date):
     if sum_frgn_pure_buy_quant != 0:
         result.append({'subject': '외인 평단(평균)', 'value': format(int(sum_frgn_unit_avg_price / sum_frgn_pure_buy_quant), ","),'pre_value': 0})
     else:
-        result.append({'subject': '외인 평단(평균)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '외인 평단(평균)', 'value': '0', 'pre_value': 0})
 
     if sum_organ_pure_buy_quant != 0:
         result.append({'subject': '기관 평단(평균)', 'value': format(int(sum_organ_unit_avg_price / sum_organ_pure_buy_quant), ","),'pre_value': 0})
     else:
-        result.append({'subject': '기관 평단(평균)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '기관 평단(평균)', 'value': '0', 'pre_value': 0})
 
     if sum_indi_pure_buy_quant != 0:
         result.append({'subject': '개인 평단(평균)', 'value': format(int(sum_indi_unit_avg_price / sum_indi_pure_buy_quant), ","),'pre_value': 0})
@@ -241,9 +241,9 @@ def getSise(item_code, start_date, end_date):
         today_price_ratio_str = "종가 : " + str(format(today_price, ",")) + " / " + str(today_price_ratio)+"%"
         result.append({'subject': '비율(평균)', 'value': today_price_ratio_str, 'pre_value': ''})
     else:
-        result.append({'subject': '개인 평단(평균)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '개인 평단(평균)', 'value': '0', 'pre_value': 0})
         result.append({'subject': '거래 평단(평균)', 'value': format(int(sum_total_unit_avg_price / sum_acc_quant), ","),'pre_value': 0})
-        result.append({'subject': '비율(평균)', 'value': 0, 'pre_value': 0})
+        result.append({'subject': '비율(평균)', 'value': '0', 'pre_value': 0})
 
     return_value.setdefault('result', result)
 

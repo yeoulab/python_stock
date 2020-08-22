@@ -55,8 +55,8 @@ def getGlobalIndex():
         #
         print(url)
         soup = BeautifulSoup(res.content, 'html.parser')
-        index_name = soup.select("#header > div.major_info_wrp.no_code > div.major_info > div.item_wrp > div > h2")
-        index = soup.select("#header > div.major_info_wrp.no_code > div.major_info > div.stock_wrp > div.price_wrp > strong")
+        index_name = soup.select("#header > div.major_info_wrp > div.major_info > div.item_wrp > div > h2")
+        index = soup.select("#header > div.major_info_wrp > div.major_info > div.stock_wrp > div.price_wrp > strong")
         highest_index = soup.select("#content > div > div.ct_box.total_info.total_ul2 > ul:nth-child(2) > li:nth-child(3) > span")
         lowest_index = soup.select("#content > div > div.ct_box.total_info.total_ul2 > ul:nth-child(3) > li:nth-child(3) > span")
 

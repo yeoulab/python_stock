@@ -120,10 +120,12 @@ def calc_theme():
             result_list = []
             print("7")
             for data in res['result']:
+                print(data)
                 if i == 8:
                     result_list.append(int(data['value'].split('/')[0].split(':')[1].replace(",", "")))
                 else:
                     result_list.append(int(data['value'].replace(",", "")))
+
                 i = i + 1
 
             max_info = res['max_info']
