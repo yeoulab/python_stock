@@ -22,11 +22,11 @@ def process_diary():
 
     if request.method == 'GET':
         sql = "SELECT jongmok_code, DATE_FORMAT(start_date,'%Y-%m-%d') AS start_date, " \
-              "company_name, buy_reason, sell_reason, suc_reason, fail_reason, stats FROM tb_l_diary"
+              "company_name, buy_reason, sell_reason, suc_reason, fail_reason FROM tb_l_diary"
         result = db_class.execute_all(sql, None)
 
     elif request.method == 'POST':
-        search_sql = "SELECT company_name, buy_reason, sell_reason, suc_reason, fail_reason, stats FROM tb_l_diary " \
+        search_sql = "SELECT company_name, buy_reason, sell_reason, suc_reason, fail_reason FROM tb_l_diary " \
                      "WHERE jongmok_code='%s'" % (input_body.get('jongmok_code'))
         result = db_class.execute_all(search_sql, None)
 

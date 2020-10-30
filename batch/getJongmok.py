@@ -9,11 +9,11 @@ from sqlalchemy import create_engine
 #pymysql.install_as_MySQLdb()
 #import MySQLdb
 
-db_data = 'mysql+pymysql://' + 'root' + ':' + 'Rkakrnl1!' + '@' + '34.64.103.91' + ':3306/' \
+db_data = 'mysql+pymysql://' + 'root' + ':' + 'Rkakrnl1!' + '@' + '34.64.223.124' + ':3306/' \
        + 'stock' + '?charset=UTF8MB4'
 engine = create_engine(db_data, encoding='utf8')
 
-db = pymysql.connect(host='34.64.103.91'
+db = pymysql.connect(host='34.64.223.124'
                      , port=3306
                      , user='root'
                      , passwd='Rkakrnl1!'

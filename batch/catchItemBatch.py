@@ -34,7 +34,7 @@ if len(sys.argv) == 1:
 db_class = database.Database()
 sql = "INSERT INTO tb_l_jongmok_stat VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s'" \
       ",'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
-file_name = "/home/yeoulab_ml/batch_" + str(datetime.today().strftime("%Y%m%d")) +"_" + sys.argv[1] + "_" + sys.argv[2] + ".log"
+file_name = "/home/yeoulab_ga/batch_" + str(datetime.today().strftime("%Y%m%d")) +"_" + sys.argv[1] + "_" + sys.argv[2] + ".log"
 logging.basicConfig(filename=file_name, level=logging.INFO)
 
 # 입력 받은 조건으로 종목 조회하기
